@@ -12,7 +12,7 @@ from torch.utils.data import TensorDataset
 from .OS_CNN_Structure_build import generate_layer_parameter_list
 from .log_manager import eval_condition, eval_model, save_to_log
 from .OS_CNN import OS_CNN
-
+import copy
 
 class OS_CNN_easy_use():
     
@@ -106,6 +106,9 @@ class OS_CNN_easy_use():
         
         torch_OS_CNN.train()   
         
+        best_test_acc = 0
+        best_model = None
+        
         for i in range(self.max_epoch):
             for sample in train_loader:
                 optimizer.zero_grad()
@@ -115,21 +118,27 @@ class OS_CNN_easy_use():
                 optimizer.step()
             scheduler.step(output)
             
+            torch_OS_CNN.eval()
+            acc_train = eval_model(torch_OS_CNN, train_loader)
+            acc_test = eval_model(torch_OS_CNN, test_loader)
+            torch_OS_CNN.train()
+            
+            if(acc_test > best_test_acc):
+                print(f'epoch:{i} test_acc score improved from {best_test_acc} to {acc_test}')
+                best_test_acc = acc_test  
+                best_model = copy.deepcopy(torch_OS_CNN)
+                torch.save(best_model.state_dict(), self.model_save_path)
+                
+            # write log and save model
+            log_sentence = 'train_acc=\t'+str(acc_train)+ '\t test_acc=\t'+str(acc_test) 
+            save_to_log(log_sentence,self.Result_log_folder, self.dataset_name)
+            
             if eval_condition(i,self.print_result_every_x_epoch):
                 for param_group in optimizer.param_groups:
-                    print('epoch =',i, 'lr = ', param_group['lr'])
-                torch_OS_CNN.eval()
-                acc_train = eval_model(torch_OS_CNN, train_loader)
-                acc_test = eval_model(torch_OS_CNN, test_loader)
-                torch_OS_CNN.train()
-                print('train_acc=\t', acc_train, '\t test_acc=\t', acc_test, '\t loss=\t', output.item())
-                sentence = 'train_acc=\t'+str(acc_train)+ '\t test_acc=\t'+str(acc_test) 
-                print('log saved at:')
-                save_to_log(sentence,self.Result_log_folder, self.dataset_name)
-                torch.save(torch_OS_CNN.state_dict(), self.model_save_path)
-         
-        torch.save(torch_OS_CNN.state_dict(), self.model_save_path)
-        self.OS_CNN = torch_OS_CNN
+                    print(f'epoch ={i}, lr = {param_group["lr"]} train_acc={acc_train}, test_acc={acc_test} loss={output.item()}')
+
+        torch.save(best_model.state_dict(), self.model_save_path)
+        self.OS_CNN = best_model
 
         
         

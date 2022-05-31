@@ -142,7 +142,7 @@ def get_data_and_label_from_ts_file(file_path,label_dict):
         
         return np.float32(X), Y
 
-    
+
 import scipy.io as sio
 
 def get_from_X(X):

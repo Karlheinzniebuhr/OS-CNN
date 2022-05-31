@@ -29,6 +29,6 @@ def save_to_log(sentence, Result_log_folder, dataset_name):
     if not os.path.exists(father_path):
         os.makedirs(father_path)
     path = father_path + '/' + dataset_name + '_.txt'
-    print(path)
+    # print(path)
     with open(path, "a") as myfile:
         myfile.write(sentence + '\n')
