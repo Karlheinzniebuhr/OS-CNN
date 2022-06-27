@@ -49,6 +49,7 @@ class OS_CNN_easy_use():
         self.batch_size = batch_size
         self.print_result_every_x_epoch = print_result_every_x_epoch
         self.lr = lr
+        self.weight_decay = 0.001
         self.OS_CNN = None
         
         
@@ -94,7 +95,7 @@ class OS_CNN_easy_use():
         
         # loss, optimizer, scheduler
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(torch_OS_CNN.parameters(),lr= self.lr)
+        optimizer = optim.Adam(torch_OS_CNN.parameters(),lr = self.lr, weight_decay = self.weight_decay)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.5, patience=50, min_lr=0.0001)
         
         # build dataloader
