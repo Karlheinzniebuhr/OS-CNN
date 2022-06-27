@@ -25,7 +25,8 @@ class OS_CNN_easy_use():
                  max_epoch = 2000, 
                  batch_size=16,
                  print_result_every_x_epoch = 50,
-                 lr = 0.001
+                 lr = 0.001,
+                 weight_decay = 0.001,
                 ):
         
         super(OS_CNN_easy_use, self).__init__()
